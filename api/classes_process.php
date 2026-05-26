@@ -18,7 +18,7 @@ try {
     exit;
 }
 
-// Siguria: Vetëm profesorët mund të menaxhojnë klasat e tyre
+
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'teacher') {
     ob_clean();
     echo json_encode(['success' => false, 'message' => 'Qasje e paautorizuar!']);
@@ -33,7 +33,7 @@ $teacher_id = $teacher ? $teacher['id'] : 0;
 
 $action = $_GET['action'] ?? '';
 
-// 1. AJAX: KRIJO NJË KLASË TË RE (CREATE)
+
 if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $class_name = htmlspecialchars(strip_tags(trim($_POST['class_name'] ?? '')));
 
@@ -61,7 +61,7 @@ if ($action === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// 2. AJAX: MODIFIKO EMRI E KLASËS (UPDATE)
+
 if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $class_id = (int)($_POST['class_id'] ?? 0);
     $class_name = htmlspecialchars(strip_tags(trim($_POST['class_name'] ?? '')));
@@ -73,7 +73,7 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Sigurohemi që profesori mund të ndryshojë vetëm klasën që është e tij
+       
         $stmt = $pdo->prepare("UPDATE classes SET class_name = ? WHERE id = ? AND teacher_id = ?");
         $stmt->execute([$class_name, $class_id, $teacher_id]);
         
@@ -86,7 +86,7 @@ if ($action === 'update' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// 3. AJAX: FSHI KLASËN (DELETE)
+
 if ($action === 'delete') {
     $class_id = (int)($_GET['id'] ?? 0);
 
