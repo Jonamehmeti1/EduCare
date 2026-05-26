@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/sidebar.php';
 
+// Force session fallbacks if testing without a functional login session yet
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['user_id'] = 1; 
     $_SESSION['user_name'] = "Kron Pajaziti";
@@ -13,17 +14,21 @@ $user_role = $_SESSION['user_role'];
 
 $msg_success = "";
 $msg_error = "";
+
+// --- POST REQUEST CONTROLLERS ---
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
+    // 1. TEACHER ACTION: Create a Class
     if (isset($_POST['action_create_class']) && $user_role === 'teacher') {
         $class_name = sanitize($_POST['class_name']);
         
+        // Fetch teacher's actual row identifier
         $t_stmt = $pdo->prepare("SELECT id FROM teachers WHERE user_id = ?");
         $t_stmt->execute([$user_id]);
         $teacher = $t_stmt->fetch();
         
         if ($teacher) {
-            $class_code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6)); 
+            $class_code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6)); // Generates clean unique 6-char code
             $insert = $pdo->prepare("INSERT INTO classes (class_name, teacher_id, class_code) VALUES (?, ?, ?)");
             if ($insert->execute([$class_name, $teacher['id'], $class_code])) {
                 $msg_success = "Klasa '$class_name' u krijua me sukses! Kodi: <b>$class_code</b>";
@@ -31,6 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
     
+    // 2. STUDENT ACTION: Join a Class via Invite Code
     if (isset($_POST['action_join_class']) && $user_role === 'student') {
         $input_code = strtoupper(trim($_POST['class_code']));
         
@@ -39,6 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $target_class = $c_stmt->fetch();
         
         if ($target_class) {
+            // Check if already joined to avoid key collision crashes
             $check = $pdo->prepare("SELECT * FROM class_enrollments WHERE class_id = ? AND student_id = ?");
             $check->execute([$target_class['id'], $user_id]);
             
@@ -65,11 +72,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php endif; ?>
 
     <?php if ($user_role === 'teacher'): 
+        // Fetch teacher database row
         $t_stmt = $pdo->prepare("SELECT id FROM teachers WHERE user_id = ?");
         $t_stmt->execute([$user_id]);
         $teacher = $t_stmt->fetch();
         $teacher_id = $teacher ? $teacher['id'] : 0;
 
+        // Fetch all classes created by this teacher, calculating the arithmetic average for each class
         $classes_query = $pdo->prepare("
             SELECT c.*, 
                    (SELECT COUNT(*) FROM class_enrollments WHERE class_id = c.id) as total_students,
@@ -121,11 +130,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 
     <?php else: 
+        // 1. Calculations Logic: Fetch general average score for this specific user metric
         $avg_stmt = $pdo->prepare("SELECT AVG(score) as user_avg FROM grades WHERE student_id = ?");
         $avg_stmt->execute([$user_id]);
         $avg_data = $avg_stmt->fetch();
         $student_average = $avg_data['user_avg'] ? round($avg_data['user_avg'], 1) : null;
 
+        // 2. Fetch list of classes this student has successfully joined
         $joined_stmt = $pdo->prepare("
             SELECT c.*, u.name as teacher_name 
             FROM class_enrollments ce 
@@ -137,6 +148,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $joined_stmt->execute([$user_id]);
         $my_joined_classes = $joined_stmt->fetchAll();
 
+        // 3. Fetch aggregated lesson timetables across all joined structural parameters
         $timetable_stmt = $pdo->prepare("
             SELECT l.*, c.class_name, u.name as teacher_name
             FROM lessons l
