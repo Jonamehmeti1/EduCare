@@ -29,6 +29,12 @@ $current_user_role = isset($_SESSION['user_role']) ? ucfirst($_SESSION['user_rol
             <a href="grades.php" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition <?php echo $current_page == 'grades.php' ? 'bg-orange-500 text-white font-medium shadow-md shadow-orange-500/10' : 'theme-text-muted hover:bg-orange-500/10 hover:text-orange-500'; ?>">
                 <span>📊 Grades</span>
             </a>
+       <?php if ($_SESSION['user_role'] === 'teacher'): ?>
+    <a href="manage_classes.php" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition <?php echo $current_page == 'manage_classes.php' ? 'bg-orange-500 text-white font-medium shadow-md shadow-orange-500/10' : 'theme-text-muted hover:bg-orange-500/10 hover:text-orange-500'; ?>">
+        <span>🏫 Manage Classes</span>
+    </a>
+
+<?php endif; ?>
         </nav>
     </div>
 
@@ -52,6 +58,6 @@ function toggleThemeSystem() {
     let nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
     
     document.cookie = "theme_mode=" + nextTheme + "; path=/; max-age=" + (30*24*60*60);
-    window.location.reload(); 
+    window.location.reload(); // Synchronizes interface blocks instantly
 }
 </script>
