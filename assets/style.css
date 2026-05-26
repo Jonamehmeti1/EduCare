@@ -1,0 +1,67 @@
+:root {
+    --bg-main: #f4f4f5;         
+    --bg-card: #ffffff;       
+    --bg-sidebar: #ffffff;      
+    --bg-input: #ffffff;     
+    --border-color: #e4e4e7;   
+    --text-main: #09090b;       
+    --text-muted: #71717a;    
+    --accent-orange: #d9824b;   
+}
+
+html.dark {
+    --bg-main: #0c0a09;         
+    --bg-card: #18181b;       
+    --bg-sidebar: #09090b;    
+    --bg-input: #020617;       
+    --border-color: #27272a;    
+    --text-main: #f4f4f5;       
+    --text-muted: #a1a1aa;     
+}
+
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.theme-bg { background-color: var(--bg-main); }
+.theme-card { 
+    background-color: var(--bg-card); 
+    border: 1px solid var(--border-color);
+}
+.theme-sidebar { 
+    background-color: var(--bg-sidebar); 
+    border-right: 1px solid var(--border-color);
+}
+.theme-text { color: var(--text-main); }
+.theme-text-muted { color: var(--text-muted); }
+.theme-border { border-color: var(--border-color); }
+
+.input-field {
+    background-color: var(--bg-input) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-field:focus {
+    border-color: var(--accent-orange) !important;
+    box-shadow: 0 0 0 2px rgba(217, 130, 75, 0.2);
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
